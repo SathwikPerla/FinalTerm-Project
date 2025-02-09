@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Disaster Management Dashboard</title>
+    <link rel="icon" href="earthend.png" type="image/png" />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Roboto", sans-serif;
+        background-color: #f4f4f4;
+        color: #333;
+        line-height: 1.6;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        text-align: center;
+      }
+
+      h1 {
+        font-size: 3em;
+        margin-bottom: 20px;
+        color: #ff4e50;
+        font-weight: bold;
+      }
+
+      .search {
+        margin-bottom: 40px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        position: relative;
+        width: 60%;
+        margin: 0 auto;
+      }
+
+      input[type="text"] {
+        width: 100%;
+        padding: 15px;
+        border: 2px solid #ff4e50;
+        border-radius: 50px;
+        font-size: 1.2em;
+        outline: none;
+        transition: 0.3s;
+      }
+
+      input[type="text"]:focus {
+        border-color: #fc913a;
+        box-shadow: 0 0 8px rgba(252, 145, 58, 0.5);
+      }
+
+      .search-buttons {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+
+      button {
+        background-color: #ff4e50;
+        color: white;
+        padding: 15px 30px;
+        border: none;
+        border-radius: 50px;
+        cursor: pointer;
+        font-size: 1.2em;
+        transition: background-color 0.3s, transform 0.3s;
+      }
+
+      button:hover {
+        background-color: #fc913a;
+        transform: translateY(-3px);
+      }
+      .clear-btn {
+        background-color: transparent;
+        color: #ff4e50;
+        font-size: 1.5em;
+        border: none;
+        cursor: pointer;
+        padding: 10px;
+        position: absolute;
+        right: 139px;
+        top: 50%;
+        transform: translateY(-50%);
+        transition: color 0.3s;
+      }
+
+      .clear-btn:hover {
+        background-color: transparent;
+        color: black;
+        font-size: 1.5em;
+        border: none;
+        cursor: pointer;
+        padding: 10px;
+        position: absolute;
+        right: 139px;
+        top: 50%;
+        transform: translateY(-50%);
+        transition: color 0.3s;
+      }
+      #earthquake-data {
+        margin-top: 40px;
+        text-align: left;
+      }
+
+      .earthquake-info {
+        background-color: white;
+        padding: 20px;
+        margin: 10px;
+        border-radius: 15px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .earthquake-info h4 {
+        font-size: 1.2em;
+        color: #ff4e50;
+        margin-bottom: 10px;
+      }
+
+      .earthquake-info p {
+        font-size: 1em;
+        margin: 5px 0;
+      }
+
+      .safe-places {
+        margin-top: 20px;
+      }
+
+      .safe-places h4 {
+        margin-bottom: 10px;
+        color: #28a745;
+      }
+
+      .safe-places p {
+        margin: 5px 0;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <h1>Disaster Management Dashboard</h1>
+
+      <div class="search">
+        <input
+          type="text"
+          id="location-input"
+          placeholder="Enter a Foreign location (e.g., italy or colorado)"
+        />
+        <button class="clear-btn" onclick="clearInput()">×</button>
+        <div class="search-buttons">
+          <button onclick="getEarthquakeData()">Search</button>
+        </div>
+      </div>
+
+      <div id="earthquake-data">
+        <h2>Earthquake Data</h2>
+        <div id="earthquake-list">No data available.</div>
+      </div>
+    </div>
+
+    <script>
+      const opencageApiKey = "775f784165974b829bc1f896575a7c8a";
+      const geoapifyApiKey = "f620800cbc1c484e810b7f09fdbfaeba";
+
+      document
+        .getElementById("location-input")
+        .addEventListener("keydown", function (event) {
+          if (event.key === "Enter") {
+            getEarthquakeData();
+          }
+        });
+
+      async function getEarthquakeData() {
+        const location = document.getElementById("location-input").value;
+
+        if (!location) {
+          alert("Please enter a location.");
+          return;
+        }
+
+        try {
+          const geocodeUrl = `https://api.opencagedata.com/geocode/v1/json?q=${encodeURIComponent(
+            location
+          )}&key=${opencageApiKey}`;
+          const geocodeResponse = await fetch(geocodeUrl);
+          const geocodeData = await geocodeResponse.json();
+
+          if (geocodeData.results.length === 0) {
+            document.getElementById("earthquake-list").innerHTML =
+              "No results found for the entered location.";
+            return;
+          }
+
+          const { lat, lng } = geocodeData.results[0].geometry;
+
+          const starttime = "2023-01-01";
+          const endtime = "2023-12-31";
+          const minmagnitude = 4;
+          const maxradiuskm = 500;
+
+          const earthquakeUrl = `https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=${starttime}&endtime=${endtime}&minmagnitude=${minmagnitude}&latitude=${lat}&longitude=${lng}&maxradiuskm=${maxradiuskm}`;
+          const earthquakeResponse = await fetch(earthquakeUrl);
+          const earthquakeData = await earthquakeResponse.json();
+
+          const earthquakeList = document.getElementById("earthquake-list");
+          earthquakeList.innerHTML = "";
+
+          if (earthquakeData.features && earthquakeData.features.length > 0) {
+            earthquakeData.features.forEach((earthquake) => {
+              const magnitude = earthquake.properties.mag;
+              const place = earthquake.properties.place;
+              const time = new Date(
+                earthquake.properties.time
+              ).toLocaleString();
+              const latitude = earthquake.geometry.coordinates[1];
+              const longitude = earthquake.geometry.coordinates[0];
+
+              const earthquakeInfo = `
+                            <div class="earthquake-info">
+                                <h4>Location: ${place}</h4>
+                                <p><strong>Magnitude:</strong> ${magnitude}</p>
+                                <p><strong>Time:</strong> ${time}</p>
+                                <button onclick="findSafePlaces(${latitude}, ${longitude}, '${place.replace(
+                /\s+/g,
+                "-"
+              )}')">Search for Safe Places (Hospitals)</button>
+                                <div id="safe-places-${place.replace(
+                                  /\s+/g,
+                                  "-"
+                                )}" class="safe-places"></div>
+                            </div>
+                        `;
+              earthquakeList.innerHTML += earthquakeInfo;
+            });
+          } else {
+            earthquakeList.innerHTML = "No earthquake data found.";
+          }
+        } catch (error) {
+          console.error("Error fetching earthquake data:", error);
+          document.getElementById("earthquake-list").innerHTML =
+            "Error retrieving data.";
+        }
+      }
+
+      function findSafePlaces(latitude, longitude, placeId) {
+        const safePlacesUrl = `https://api.geoapify.com/v2/places?categories=healthcare.hospital&filter=circle:${longitude},${latitude},5000&limit=5&apiKey=${geoapifyApiKey}`;
+
+        fetch(safePlacesUrl)
+          .then((response) => response.json())
+          .then((data) => {
+            const safePlacesContainer = document.getElementById(
+              `safe-places-${placeId}`
+            );
+            safePlacesContainer.innerHTML = "";
+
+            if (data.features && data.features.length > 0) {
+              data.features.forEach((place) => {
+                const placeName = place.properties.name;
+                const placeAddress = place.properties.address_line1;
+                const placeLat = place.geometry.coordinates[1];
+                const placeLng = place.geometry.coordinates[0];
+                const googleMapsLink = `https://www.google.com/maps?q=${placeLat},${placeLng}`;
+
+                const placeDiv = document.createElement("div");
+                placeDiv.innerHTML = `<p><strong>${placeName}</strong> - <a href="${googleMapsLink}" target="_blank">View on Google Maps</a><br>${placeAddress}</p>`;
+                safePlacesContainer.appendChild(placeDiv);
+              });
+            } else {
+              const googleMapsSearchLink = `https://www.google.com/maps/search/healthcare+hospital/@${latitude},${longitude},13z`;
+
+              const fallbackDiv = document.createElement("div");
+              fallbackDiv.innerHTML = `<p>No nearby hospitals found. <a href="${googleMapsSearchLink}" target="_blank">Search for hospitals on Google Maps</a>.</p>`;
+              safePlacesContainer.appendChild(fallbackDiv);
+            }
+          })
+          .catch((error) => {
+            console.error("Error fetching safe places:", error);
+          });
+      }
+
+      function clearInput() {
+        document.getElementById("location-input").value = "";
+      }
+    </script>
+  </body>
+</html>
