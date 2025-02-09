@@ -26,7 +26,7 @@ Depth and other seismic details.
 3. Find Nearby Hospitals / Safe Places
 What It Does: For every earthquake event, users can click a button to find nearby hospitals or shelters within the region of the earthquake.
 
-How It Works:
+**How It Works:**
 The location of the earthquake (latitude and longitude) is sent to the Geoapify Places API.
 This API retrieves nearby points of interest (POIs) such as hospitals, clinics, and safe zones based on the earthquake's location.
 
