@@ -1,4 +1,5 @@
 🌍 Disaster Management Dashboard 🚨
+
 Welcome to the Disaster Management Dashboard! This interactive web application provides real-time earthquake data and helps you locate nearby hospitals in case of emergencies. Be the disaster-management hero! 🦸‍♂️🦸‍♀️
 
 🎯 Key Features:
