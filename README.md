@@ -1,7 +1,5 @@
-# FinalTerm-Project
-Gives the info about the EarthQuake that occured in that country/city
 🌍 Disaster Management Dashboard 🚨
-
+Gives the info about the EarthQuake that occured in that country/city
 Welcome to the Disaster Management Dashboard! This interactive web application provides real-time earthquake data and helps you locate nearby hospitals in case of emergencies. Be the disaster-management hero! 🦸‍♂️🦸‍♀️
 
 🎯 Key Features:
